@@ -50,7 +50,7 @@ int main(void)
   Serial0_setup(UCS_8MHZ);
   /* PRINT HEADER */
   Serial0_write("----------------------------------------------------------------------------------------------------" ENDL);
-  Serial0_write("- MSP Flash Tiered Stresser: 0xAAAA Stressing Pattern" ENDL);
+  Serial0_write("- MSP Flash Tiered Stresser: 10k cycle increments" ENDL);
   snprintf(outputBuffer, BUF_SIZE, "- Subject Chip ID: 0x%08llX" ENDL, get_chipID());
   Serial0_write(outputBuffer);
   Serial0_write("----------------------------------------------------------------------------------------------------" ENDL);
@@ -97,9 +97,9 @@ void equivalentTieredStress(f_bank_t bank, char* charBuffer)
     Serial0_write("\x1B" "[0G"); // ANSI Escape code for return to zero column
 
     for (int32_t i = STAT_INCREMENT_CYCLES / STRESS_INDICATOR_CYCLES; i > 0; --i) {
-      f_genStress(division1Start, division1End, 0xAAAA, STRESS_INDICATOR_CYCLES);
-      f_genStress(division2Start, division2End, 0xAAAA, STRESS_INDICATOR_CYCLES);
-      f_genStress(division3Start, division3End, 0xAAAA, STRESS_INDICATOR_CYCLES);
+      f_genStress(division1Start, division1End, 0x0000, STRESS_INDICATOR_CYCLES);
+      f_genStress(division2Start, division2End, 0x0000, STRESS_INDICATOR_CYCLES);
+      f_genStress(division3Start, division3End, 0x0000, STRESS_INDICATOR_CYCLES);
       Serial0_write("##"); // advance loading bar
     }
     Serial0_write(ENDL);
