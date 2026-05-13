@@ -19,14 +19,13 @@
 #include "src/unified_clock_system.h"
 #include "src/event_timer.h"
 
-
 /* FLASH BANK D starts at 0x1_C400 and ends at 0x2_43FF */
 #define F5529_FLASH_BANK_D      0x1C400
 #define CHIP_ID_ADR             0x1A0A
 
-#define TOTAL_PE_CYCLES         200000
-#define STAT_INCREMENT_CYCLES   10000
-#define STRESS_INDICATOR_CYCLES 1000
+#define TOTAL_PE_CYCLES         1000000
+#define STAT_INCREMENT_CYCLES   2000
+#define STRESS_INDICATOR_CYCLES 500
 
 #define ENDL "\r\n"
 #define BUF_SIZE                64
@@ -70,45 +69,32 @@ int main(void)
 
 void equivalentTieredStress(f_bank_t bank, char* charBuffer)
 {
-  f_segment_t division1Start, division2Start, division3Start;
-  f_segment_t division1End, division2End, division3End;
-
   int32_t totalIterations = TOTAL_PE_CYCLES;
 
-  division1Start = (f_segment_t)bank + 0;
-  division2Start = (f_segment_t)bank + 22;
-  division3Start = (f_segment_t)bank + 44;
-
-  division1End = (f_segment_t)bank + 19;
-  division2End = (f_segment_t)bank + 41;
-  division3End = (f_segment_t)bank + 63;
+  f_segment_t division1Start = (f_segment_t)bank + 1;
+  f_segment_t division1End = (f_segment_t)bank + 50;
 
   while (totalIterations > 0) {
     // NOT REALLY NECESSARY
-    snprintf(charBuffer, BUF_SIZE, "Division Starting Addresses: %p , %p, %p"
-             ENDL, division1Start, division2Start, division3Start);
+    snprintf(charBuffer, BUF_SIZE, "Division Starting Addresses: %p" ENDL, division1Start);
     Serial0_write(charBuffer);
 
     snprintf(charBuffer, BUF_SIZE, "%ld Cycles" ENDL, TOTAL_PE_CYCLES - totalIterations);
     Serial0_write(charBuffer);
 
     // Init Loading bar
-    Serial0_write("....................");
+    Serial0_write("............");
     Serial0_write("\x1B" "[0G"); // ANSI Escape code for return to zero column
 
     for (int32_t i = STAT_INCREMENT_CYCLES / STRESS_INDICATOR_CYCLES; i > 0; --i) {
       f_genStress(division1Start, division1End, 0x0000, STRESS_INDICATOR_CYCLES);
-      f_genStress(division2Start, division2End, 0x0000, STRESS_INDICATOR_CYCLES);
-      f_genStress(division3Start, division3End, 0x0000, STRESS_INDICATOR_CYCLES);
-      Serial0_write("##"); // advance loading bar
+      Serial0_write("###"); // advance loading bar
     }
     Serial0_write(ENDL);
 
     totalIterations -= STAT_INCREMENT_CYCLES;
 
     division1Start++;
-    division2Start++;
-    division3Start++;
     
   }
 
